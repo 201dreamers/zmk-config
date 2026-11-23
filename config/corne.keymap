@@ -7,6 +7,22 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 #include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/rgb.h>
+
+#define DFT 0
+#define LWR 1
+#define RSE 2
+#define ADJ 3
+
+/*
+ * Corne v3/v4 has 27 RGB LEDs per half (6 underglow + 21 per-key).
+ * ZMK's nice_nano_v2 shield overlay defaults chain-length to 10, which only
+ * lights the LEDs nearest the controller. Set here because the keymap is
+ * applied after the shield overlays, so &led_strip already exists.
+ */
+&led_strip {
+        chain-length = <27>;
+};
 
 / {
         keymap {
@@ -14,42 +30,60 @@
 
                 default_layer {
 // -----------------------------------------------------------------------------------------
-// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BSPC |
-// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
-// | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
-//                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
+// |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  | BSPC |
+// | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J  |  K  |  L  |  ;  |  '   |
+// |  GUI |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  | ESC  |
+//                    | ALT | SHFT| LWR |   | RSE | SPC | ENT |
                         bindings = <
-   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U  &kp I     &kp O   &kp P    &kp BSPC
-   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J  &kp K     &kp L   &kp SEMI &kp SQT
-   &kp LSHFT &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M  &kp COMMA &kp DOT &kp FSLH &kp ESC
-                  &kp LGUI &mo 1 &kp SPACE   &kp RET &mo 2 &kp RALT
+   &kp TAB   &kp Q &kp W &kp E &kp R &kp T   &kp Y &kp U &kp I     &kp O   &kp P    &kp BSPC
+   &kp LCTRL &kp A &kp S &kp D &kp F &kp G   &kp H &kp J &kp K     &kp L   &kp SEMI &kp SQT
+   &kp LGUI  &kp Z &kp X &kp C &kp V &kp B   &kp N &kp M &kp COMMA &kp DOT &kp FSLH &kp ESC
+                  &kp LALT &kp LSHFT &mo LWR   &mo RSE &kp SPACE &kp RET
                         >;
                 };
+
                 lower_layer {
 // -----------------------------------------------------------------------------------------
-// |  TAB |  1  |  2  |  3  |  4  |  5  |   |  6  |  7  |  8  |  9  |  0  | BSPC |
-// | BTCLR| BT1 | BT2 | BT3 | BT4 | BT5 |   | LFT | DWN |  UP | RGT |     |      |
-// | SHFT |     |     |     |     |     |   |     |     |     |     |     |      |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
+// |      |  1  |  2  |  3  |  4  |  5  |   |     | HOME| PGUP|     |     |      |
+// |      |  6  |  7  |  8  |  9  |  0  |   | LFT | DWN |  UP | RGT |     | PSCR |
+// |      | SPC |     |     |     | DEL |   |     | END | PGDN|     | DEL |      |
+//                    |     |     |     |   | ADJ |     |     |
                         bindings = <
-   &kp TAB    &kp N1       &kp N2       &kp N3       &kp N4       &kp N5         &kp N6   &kp N7   &kp N8 &kp N9    &kp N0 &kp BSPC
-   &bt BT_CLR &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3 &bt BT_SEL 4   &kp LEFT &kp DOWN &kp UP &kp RIGHT &trans &trans
-   &kp LSHFT  &trans       &trans       &trans       &trans       &trans         &trans   &trans   &trans &trans    &trans &trans
-                                    &kp LGUI     &trans       &kp SPACE      &kp RET  &trans   &kp RALT
+   &trans &kp N1    &kp N2 &kp N3 &kp N4 &kp N5    &none    &kp HOME &kp PG_UP &none     &none   &trans
+   &trans &kp N6    &kp N7 &kp N8 &kp N9 &kp N0    &kp LEFT &kp DOWN &kp UP    &kp RIGHT &none   &kp PSCRN
+   &trans &kp SPACE &none  &none  &none  &kp DEL   &none    &kp END  &kp PG_DN &none     &kp DEL &trans
+                           &trans &trans &trans    &mo ADJ  &trans   &trans
                         >;
                 };
 
                 raise_layer {
 // -----------------------------------------------------------------------------------------
-// |  TAB |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | BSPC |
-// | CTRL |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `   |
-// | SHFT |     |     |     |     |     |   |  _  |  +  |  {  |  }  | "|" |  ~   |
-//                    | GUI |     | SPC |   | ENT |     | ALT |
+// |      |  1  |  @  |  #  |  $  |  %  |   |     |     |     |     |     |      |
+// |      |  ^  |  &  |  *  |  -  |  +  |   |  [  |  (  |  {  |     |  |  | CAPS |
+// |      |  ~  |  `  |     |  _  |  +  |   |  ]  |  )  |  }  |     |  \  |      |
+//                    |     |     | ADJ |   |     |     |     |
                         bindings = <
-   &kp  TAB  &kp EXCL &kp AT &kp HASH &kp DLLR &kp PRCNT   &kp CARET &kp AMPS  &kp ASTRK &kp LPAR &kp RPAR &kp BSPC
-   &kp LCTRL &trans   &trans &trans   &trans   &trans      &kp MINUS &kp EQUAL &kp LBKT  &kp RBKT &kp BSLH &kp GRAVE
-   &kp LSHFT &trans   &trans &trans   &trans   &trans      &kp UNDER &kp PLUS  &kp LBRC  &kp RBRC &kp PIPE &kp TILDE
-                             &kp LGUI &trans   &kp SPACE   &kp RET   &trans    &kp RALT
+   &trans &kp N1    &kp AT    &kp HASH  &kp DLLR  &kp PRCNT   &none    &none    &none    &none &none    &trans
+   &trans &kp CARET &kp AMPS  &kp ASTRK &kp MINUS &kp PLUS    &kp LBKT &kp LPAR &kp LBRC &none &kp PIPE &kp CAPS
+   &trans &kp TILDE &kp GRAVE &none     &kp UNDER &kp PLUS    &kp RBKT &kp RPAR &kp RBRC &none &kp BSLH &trans
+                                &trans    &trans    &mo ADJ     &trans   &trans   &trans
+                        >;
+                };
+
+                adjust_layer {
+// -----------------------------------------------------------------------------------------
+// |UNLOCK|  F1 |  F2 |  F3 |  F4 | VOL+|   | SCR+| RGBM| BRI+| SAT+| HUE+|      |
+// |      |  F5 |  F6 |  F7 |  F8 | MUTE|   | BT0 | BT1 | BT2 |BTCLR| RGBT| BOOT |
+// |      |  F9 | F10 | F11 | F12 | VOL-|   | SCR-| RGBR| BRI-| SAT-| HUE-|      |
+//                    |     |     |     |   |     |     |     |
+// BT0/BT1/BT2 = select BT profile, BTCLR = clear current profile's pairing
+// (not in QMK source; those slots were KC_NO there).
+// UNLOCK = &studio_unlock, required before ZMK Studio can edit the keymap.
+                        bindings = <
+   &studio_unlock &kp F1 &kp F2  &kp F3  &kp F4  &kp C_VOL_UP   &kp C_BRI_UP &rgb_ug RGB_EFF &rgb_ug RGB_BRI &rgb_ug RGB_SAI &rgb_ug RGB_HUI &trans
+   &trans         &kp F5 &kp F6  &kp F7  &kp F8  &kp C_MUTE     &bt BT_SEL 0 &bt BT_SEL 1    &bt BT_SEL 2    &bt BT_CLR      &rgb_ug RGB_TOG &sys_reset
+   &trans         &kp F9 &kp F10 &kp F11 &kp F12 &kp C_VOL_DN   &kp C_BRI_DN &rgb_ug RGB_EFR &rgb_ug RGB_BRD &rgb_ug RGB_SAD &rgb_ug RGB_HUD &trans
+                                 &trans  &trans  &trans         &trans       &trans          &trans
                         >;
                 };
         };
